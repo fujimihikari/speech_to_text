@@ -273,6 +273,7 @@ class SpeechToText {
       SpeechStatusListener? onStatus,
       debugLogging = false,
       Duration finalTimeout = defaultFinalTimeout,
+    ValueChanged<double>? defaultSoundLevelChange,
       List<SpeechConfigOption>? options}) async {
     if (_initWorked) {
       return Future.value(_initWorked);
@@ -281,6 +282,7 @@ class SpeechToText {
     if (finalTimeout <= _minFinalTimeout) {}
     errorListener = onError;
     statusListener = onStatus;
+    _defaultSoundLevelChange = defaultSoundLevelChange;
     SpeechToTextPlatform.instance.onTextRecognition = _onTextRecognition;
     SpeechToTextPlatform.instance.onError = _onNotifyError;
     SpeechToTextPlatform.instance.onStatus = _onNotifyStatus;
@@ -289,6 +291,8 @@ class SpeechToText {
         .initialize(debugLogging: debugLogging, options: options);
     return _initWorked;
   }
+  
+  ValueChanged<double>? _defaultSoundLevelChange;
 
   /// Stops the current listen for speech if active, does nothing if not.
   ///
@@ -630,6 +634,9 @@ class SpeechToText {
       return;
     }
     _lastSoundLevel = level;
+     if (_defaultSoundLevelChange != null) {
+      _defaultSoundLevelChange!(level);
+    }
     if (null != _soundLevelChange) {
       _soundLevelChange!(level);
     }
